@@ -46,12 +46,12 @@ public class BankServices {
             try{
             BankAccount account=lockAndGetAccount(conn,account_id);
             if (account==null){
-                throw new SQLException(" Account "+account_id+ "Not Found");
+                throw new SQLException(" Account with Account ID"+account_id+ "Not Found");
             }
             double newBalance=account.getBalance()+amount;
             updateBalance(conn,account_id,newBalance);
-                insertTransaction(conn,new Transactions(account_id,"deposit".toUpperCase(),amount,newBalance));
-                conn.commit();
+            insertTransaction(conn,new Transactions(account_id,"deposit".toUpperCase(),amount,newBalance));
+            conn.commit();
         }catch (SQLException e){
                 conn.rollback();
                 throw e;
@@ -62,21 +62,22 @@ public class BankServices {
     }
     public void withdraw(int account_id, double amount) throws Exception{
         if (amount<=100){
-            throw new IllegalArgumentException("Withhdraw Amount Must be Greater than 100 Rs");
+            throw new IllegalArgumentException("Withdraw Amount Must be Greater than 100 Rs");
         }
         try(Connection conn =DBconnection.get()){
             conn.setAutoCommit(false);
             try{
                 BankAccount account=lockAndGetAccount(conn,account_id);
                 if (account==null){
-                    throw new SQLException(" Account "+account_id+ "Not Found");
+                    throw new SQLException(" Account with Account ID"+account_id+ "Not Found");
                 }
                 if (!account.can_withdraw(amount)){
                     throw new SQLException("Insufficients Funds in Your Account");
             }
                 double newBalance=account.getBalance()-amount;
                 updateBalance(conn,account_id,newBalance);
-                insertTransaction(conn,new Transactions(account_id,"withdraw".toUpperCase(),amount,newBalance));
+                insertTransaction(conn, new Transactions(account_id, "withdrawal".toUpperCase(), amount,
+                        newBalance));
                 conn.commit();
         }catch (SQLException e){
                 conn.rollback();
@@ -96,10 +97,10 @@ public class BankServices {
                 BankAccount from_account = lockAndGetAccount(conn, fromId);
                 BankAccount to_account = lockAndGetAccount(conn, toId);
                 if (from_account == null) {
-                    throw new SQLException("Sender Account " + fromId + "Not Found");
+                    throw new SQLException("Sender Account with Account ID " + fromId + " Not Found");
                 }
                 if (to_account == null) {
-                    throw new SQLException("Reciever Account " + toId + "Not Found");
+                    throw new SQLException("Reciever Account with Account ID" + toId + " Not Found");
                 }
                 if (!from_account.can_withdraw(amount)) {
                     throw new SQLException("Insufficients Funds in Sender Account");
@@ -121,7 +122,7 @@ public class BankServices {
         }
     }
     public List<Transactions> getStatement(int account_id) throws Exception{
-        String sql="select * from Transaction where account_id=?";
+        String sql="select * from Transactions where account_id=? order by transaction_date desc";
         List<Transactions> history = new ArrayList<>();
         try(Connection conn =DBconnection.get();
             PreparedStatement pst= conn.prepareStatement(sql)){

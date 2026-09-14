@@ -42,7 +42,6 @@ public class BankApp {
         System.out.println("4. Transfer Funds");
         System.out.println("5. View Account");
         System.out.println("6. View Mini Statement");
-        System.out.println("7. List All Accounts");
         System.out.println("0. Exit");
     }
 
@@ -90,7 +89,7 @@ public class BankApp {
         System.out.println(account);
     }
     private static void viewStatement() throws Exception{
-        int accountId=readInt("Account id");
+        int accountId=readInt("Account id:");
         List<Transactions> history=bankService.getStatement(accountId);
         if (history.isEmpty()){
             System.out.println("No Transaction History Found");
@@ -104,7 +103,7 @@ public class BankApp {
     private static int readInt(String prompt) {
         System.out.print(prompt);
         while (!scanner.hasNextInt()) {
-            System.out.print(prompt +"should be in number"+"Please enter a number: ");
+            System.out.print(prompt +"should be in number"+" "+"Please enter a number: ");
             scanner.next();
         }
         int value = scanner.nextInt();
