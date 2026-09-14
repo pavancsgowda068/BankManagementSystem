@@ -52,7 +52,6 @@ public class BankServices {
             updateBalance(conn,account_id,newBalance);
                 insertTransaction(conn,new Transactions(account_id,"deposit".toUpperCase(),amount,newBalance));
                 conn.commit();
-            conn.commit();
         }catch (SQLException e){
                 conn.rollback();
                 throw e;
@@ -102,7 +101,7 @@ public class BankServices {
                 if (to_account == null) {
                     throw new SQLException("Reciever Account " + toId + "Not Found");
                 }
-                if (!to_account.can_withdraw(amount)) {
+                if (!from_account.can_withdraw(amount)) {
                     throw new SQLException("Insufficients Funds in Sender Account");
                 }
                 double from_newBalance = from_account.getBalance() - amount;
@@ -142,7 +141,7 @@ public class BankServices {
     }
 
     private BankAccount lockAndGetAccount(Connection conn, int accountId)throws SQLException{
-        String sql="selct * from Accounts with(updlock,rowlock) where account_id=accountId";
+        String sql="select * from Accounts with(UPDLOCK, ROWLOCK) where account_id=?";
         try(PreparedStatement pst=conn.prepareStatement(sql)){
             pst.setInt(1, accountId);
             try(ResultSet rs=pst.executeQuery()){
